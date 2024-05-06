@@ -5,12 +5,11 @@ CREATE TABLE "Client" (
     "client_type" INTEGER NOT NULL,
     "client_group" INTEGER,
     "name" TEXT NOT NULL,
-    "business_name" TEXT NOT NULL,
-    "company_address" TEXT NOT NULL,
-    "company_email" TEXT NOT NULL,
-    "company_id" TEXT NOT NULL,
-    "tax_id" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
+    "business_name" TEXT,
+    "company_address" TEXT,
+    "company_email" TEXT,
+    "company_id" TEXT,
+    "tax_id" TEXT,
     "billing_type" INTEGER,
     "margin" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
     "scrub" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
@@ -20,22 +19,22 @@ CREATE TABLE "Client" (
     "notes" TEXT,
     "timezone" TEXT NOT NULL DEFAULT 'UTC',
     "use_interstitial" INTEGER,
-    "status" INTEGER NOT NULL,
-    "created_at" TIMESTAMP(3),
-    "updated_at" TIMESTAMP(3),
+    "status" INTEGER NOT NULL DEFAULT 1,
+    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" TIMESTAMP(3),
+    "managerId" INTEGER,
+    "salesRepId" INTEGER,
 
     CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" INTEGER NOT NULL,
+    "id" SERIAL NOT NULL,
     "uuid" TEXT NOT NULL,
     "role_id" INTEGER NOT NULL DEFAULT 1,
-    "client_id" INTEGER,
     "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "email_verified_at" TIMESTAMP(3),
     "password" TEXT NOT NULL,
@@ -47,6 +46,7 @@ CREATE TABLE "User" (
     "updated_at" TIMESTAMP(3),
     "deleted_at" TIMESTAMP(3),
     "last_login" TIMESTAMP(3),
+    "clientId" INTEGER,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -55,16 +55,13 @@ CREATE TABLE "User" (
 CREATE UNIQUE INDEX "Client_uuid_key" ON "Client"("uuid");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Client_slug_key" ON "Client"("slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_id_key" ON "User"("id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_slug_key" ON "User"("slug");
-
--- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "Client"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Client" ADD CONSTRAINT "Client_managerId_fkey" FOREIGN KEY ("managerId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Client" ADD CONSTRAINT "Client_salesRepId_fkey" FOREIGN KEY ("salesRepId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE SET NULL ON UPDATE CASCADE;
